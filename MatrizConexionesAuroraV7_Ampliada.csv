@@ -1,0 +1,20 @@
+Módulo,Conecta con,Importación (Ejemplo),Tipo de integración,Notas de precaución
+aurora_flask_app.py,"aurora_bridge.py, aurora_director_v7.py",from aurora_flask_app import app,Directa,Depende de Flask y configuraciones HTTP
+aurora_bridge.py,"aurora_director_v7.py, neuromix_aurora_v27.py",from aurora_bridge import AuroraBridge,Directa,Depende de AuroraDirectorV7
+aurora_director_v7.py,"Todos los motores: neuromix, hypermod, harmonicEssence; sync_and_scheduler, objective_manager, presets_fases",from aurora_director_v7 import AuroraDirector,Orquestador maestro,Coordina todos los motores
+neuromix_aurora_v27.py,"aurora_director_v7.py, neuromix_definitivo_v7.py",from neuromix_aurora_v27 import NeuroMixAuroraV27,Motor principal,CPU intensivo en generación de ondas
+neuromix_definitivo_v7.py,"neuromix_aurora_v27.py, aurora_director_v7.py",from neuromix_definitivo_v7 import NeuroMixSuperUnificado,Parche aditivo,Auto-reparación y fallback
+hypermod_v32.py,"aurora_director_v7.py, neuromix_aurora_v27.py, harmonicEssence_v34.py",from hypermod_v32 import HyperModEngineV32AuroraConnected,Motor estructural,Depende de presets y fases
+harmonicEssence_v34.py,"aurora_director_v7.py, harmonic_essence_optimizations.py",from harmonicEssence_v34 import HarmonicEssenceV34AuroraConnected,Motor estético,Usa lazy loading y filtros avanzados
+harmonic_essence_optimizations.py,"harmonicEssence_v34.py, aurora_director_v7.py",from harmonic_essence_optimizations import aplicar_mejoras_harmonic_essence,Parche aditivo,Carga CPU en procesamiento multidimensional
+Carmine_Analyzer.py,"aurora_quality_pipeline.py, carmine_power_booster_v7.py",from Carmine_Analyzer import CarmineAuroraAnalyzer,Analizador,FFT y CPU intensivo
+carmine_power_booster_v7.py,"Carmine_Analyzer.py, aurora_director_v7.py",from carmine_power_booster_v7 import CarminePowerBooster,Parche aditivo,Puede alterar el flujo del pipeline
+aurora_quality_pipeline.py,"aurora_director_v7.py, Carmine_Analyzer.py, harmonicEssence_v34.py",from aurora_quality_pipeline import AuroraQualityPipeline,Pipeline de calidad,Validación y corrección intensiva
+aurora_multimotor_extension.py,"aurora_director_v7.py, neuromix_aurora_v27.py, hypermod_v32.py, harmonicEssence_v34.py",from aurora_multimotor_extension import aplicar_extension_colaborativa_optimizada,Extensión colaborativa,Evita dependencias circulares
+harmony_generator.py,"aurora_director_v7.py, harmonicEssence_v34.py",from harmony_generator import GeneradorArmonias,Motor auxiliar,Carga CPU por modulación polifónica
+sync_and_scheduler.py,"aurora_director_v7.py, neuromix_aurora_v27.py, hypermod_v32.py",from sync_and_scheduler import sincronizar_multicapa,Motor de sincronización,"Usa FFT, sincronización intensiva"
+verify_structure.py,"aurora_director_v7.py, sync_and_scheduler.py",from verify_structure import verificar_estructura_aurora_v7_unificada,Validación avanzada,Requiere configuración y umbrales
+field_profiles.py,"aurora_director_v7.py, neuromix_aurora_v27.py, harmonicEssence_v34.py",from field_profiles import GestorPerfilesCampo,Perfiles y presets,Retrocompatibilidad V6 y V7
+presets_fases.py,"aurora_director_v7.py, neuromix_aurora_v27.py, hypermod_v32.py, harmonicEssence_v34.py",from presets_fases import GestorFasesConscientes,Fases y secuencias,Generación de secuencias personalizada
+objective_manager.py,"aurora_director_v7.py, field_profiles.py, presets_fases.py, harmonicEssence_v34.py",from objective_manager import ObjectiveManagerUnificado,Gestor de objetivos,IA intensiva y dependencias V6-V7
+psychedelic_effects_tables.json,"aurora_director_v7.py, neuromix_aurora_v27.py, harmonicEssence_v34.py",json.load(open('psychedelic_effects_tables.json')),Archivo JSON (configuración),Validar referencias clínicas

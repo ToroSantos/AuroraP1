@@ -789,14 +789,6 @@ SuperDetectorAurora = SuperDetectorAuroraRefactored
 AutoReparadorSistema = AutoReparadorSistemaRefactored
 
 # ===============================================================================
-# AUTO-APLICACIÓN DEL PARCHE
-# ===============================================================================
-
-# Auto-aplicar el parche al importar el módulo
-if __name__ != "__main__":
-    aplicar_super_parche_automatico()
-
-# ===============================================================================
 # FUNCIONES DE TEST
 # ===============================================================================
 
@@ -848,6 +840,14 @@ def test_neuromix_definitivo_refactorizado():
     return motor
 
 # ===============================================================================
+# AUTO-APLICACIÓN DEL PARCHE
+# ===============================================================================
+
+# Auto-aplicar el parche al importar el módulo
+if __name__ != "__main__":
+    aplicar_super_parche_automatico()
+
+# ===============================================================================
 # INFORMACIÓN DEL MÓDULO
 # ===============================================================================
 
@@ -867,51 +867,3 @@ if __name__ == "__main__":
     
     # Ejecutar test
     test_neuromix_definitivo_refactorizado()
-
-# 🔁 Versión mejorada del potenciador seguro: NeuroMixSuperUnificado
-from typing import Optional
-import logging
-
-try:
-    from neuromix_aurora_v27 import AuroraNeuroAcousticEngineV27
-    logging.info("✅ Motor base cargado correctamente en NeuroMixSuperUnificado")
-except Exception as e:
-    AuroraNeuroAcousticEngineV27 = None
-    logging.warning(f"⚠️ No se pudo cargar el motor base: {e}")
-
-class NeuroMixSuperUnificado:
-    def __init__(self):
-        if AuroraNeuroAcousticEngineV27:
-            self.motor_base = AuroraNeuroAcousticEngineV27()
-            self.modo_fallback = False
-        else:
-            self.motor_base = None
-            self.modo_fallback = True
-
-    def crear_audio(self, config, duracion_sec):
-        if self.motor_base:
-            return self.motor_base.crear_audio(config, duracion_sec)
-        else:
-            logging.warning("⚠️ Usando fallback silencioso en crear_audio")
-            return self._crear_fallback_silencioso(duracion_sec)
-
-    def generar_audio(self, config, duracion_sec):
-        if hasattr(self.motor_base, "generar_audio"):
-            return self.motor_base.generar_audio(config, duracion_sec)
-        else:
-            return self.crear_audio(config, duracion_sec)
-
-    def get_neuro_preset(self, nombre: str) -> Optional[dict]:
-        if hasattr(self.motor_base, "get_neuro_preset"):
-            return self.motor_base.get_neuro_preset(nombre)
-        return None
-
-    def generate_neuro_wave(self, frecuencia: float, duracion: float):
-        if hasattr(self.motor_base, "generate_neuro_wave"):
-            return self.motor_base.generate_neuro_wave(frecuencia, duracion)
-        return None
-
-    def _crear_fallback_silencioso(self, duracion):
-        import numpy as np
-        sr = 44100
-        return np.zeros(int(sr * duracion), dtype=np.float32)

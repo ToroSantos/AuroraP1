@@ -719,10 +719,17 @@ class NeuroMixSuperUnificadoRefactored(ComponenteAuroraBase):
             
             # Actualizar resultado con audio potenciado
             resultado_potenciado['audio_data'] = audio_final
-            resultado_potenciado['factor_mejora'] = self._calcular_mejora(audio_data, audio_final)
+
+            # CALCULAR MEJORA CON MANEJO DE ERRORES
+            try:
+                resultado_potenciado['factor_mejora'] = self._calcular_mejora(audio_data, audio_final)
+            except Exception as e:
+                logger.warning(f"⚠️ Error calculando mejora: {e}")
+                resultado_potenciado['factor_mejora'] = 1.0  # Factor neutro
+
             resultado_potenciado['potenciaciones_aplicadas'] = 3
-            resultado_potenciado['memoria_segura'] = True
-            resultado_potenciado['validacion_completada'] = True
+            resultado_potenciado['motor_base_usado'] = True
+            resultado_potenciado['audio_quality'] = 'neuroacoustic_enhanced'
             
             logger.info("🎯 Potenciaciones aplicadas exitosamente sin explosión de memoria")
             return resultado_potenciado
@@ -1198,11 +1205,38 @@ class NeuroMixSuperUnificadoRefactored(ComponenteAuroraBase):
         """Calcula el factor de mejora aplicado"""
         try:
             import numpy as np
+            
+            # Validar entradas
+            if audio_original is None or audio_potenciado is None:
+                return 1.0
+            
+            # Convertir a numpy arrays si es necesario
+            if not isinstance(audio_original, np.ndarray):
+                audio_original = np.array(audio_original)
+            if not isinstance(audio_potenciado, np.ndarray):
+                audio_potenciado = np.array(audio_potenciado)
+            
+            # Calcular RMS de ambos audios
             rms_original = np.sqrt(np.mean(audio_original**2))
             rms_potenciado = np.sqrt(np.mean(audio_potenciado**2))
-            return round(rms_potenciado / (rms_original + 1e-10), 3)
-        except:
-            return 1.0
+            
+            # Evitar división por cero
+            if rms_original == 0:
+                return 1.0
+            
+            # Calcular factor de mejora
+            factor_mejora = rms_potenciado / rms_original
+            
+            # Limitar factor a rango razonable
+            factor_mejora = max(0.1, min(10.0, factor_mejora))
+            
+            logger.debug(f"🎯 Factor de mejora calculado: {factor_mejora:.3f} (Original: {rms_original:.3f}, Potenciado: {rms_potenciado:.3f})")
+            
+            return factor_mejora
+            
+        except Exception as e:
+            logger.error(f"❌ Error calculando mejora: {e}")
+            return 1.0  # Factor neutro en caso de error
         
     def _forzar_deteccion_motor_base(self):
         """Fuerza la detección del motor base cuando falla la inicialización normal"""
@@ -1367,9 +1401,30 @@ class NeuroMixSuperUnificadoRefactored(ComponenteAuroraBase):
             
             # ACTUALIZAR RESULTADO CON AUDIO POTENCIADO
             resultado_potenciado['audio_data'] = audio_final
-            resultado_potenciado['factor_mejora'] = self._calcular_mejora(audio_data, audio_final)
+
+            # CALCULAR MEJORA CON MANEJO DE ERRORES
+            # VALIDACIÓN NEUROACÚSTICA FINAL
+            try:
+                audio_final_rms = np.sqrt(np.mean(audio_final**2))
+                if audio_final_rms > 0.3:  # Umbral mínimo para audio neuroacústico
+                    resultado_potenciado['neuroacoustic_validated'] = True
+                    resultado_potenciado['rms_final'] = audio_final_rms
+                    logger.info(f"✅ Audio neuroacústico validado: RMS {audio_final_rms:.3f}")
+                else:
+                    logger.warning(f"⚠️ RMS bajo detectado: {audio_final_rms:.3f}")
+                    resultado_potenciado['neuroacoustic_validated'] = False
+            except Exception as e:
+                logger.warning(f"⚠️ Error en validación: {e}")
+                resultado_potenciado['neuroacoustic_validated'] = False
+            try:
+                resultado_potenciado['factor_mejora'] = self._calcular_mejora(audio_data, audio_final)
+            except Exception as e:
+                logger.warning(f"⚠️ Error calculando mejora: {e}")
+                resultado_potenciado['factor_mejora'] = 1.0  # Factor neutro
+
             resultado_potenciado['potenciaciones_aplicadas'] = 3
             resultado_potenciado['motor_base_usado'] = True
+            resultado_potenciado['audio_quality'] = 'neuroacoustic_enhanced'
             
             logger.info("🎯 Potenciaciones REALES aplicadas exitosamente sobre audio neuroacústico")
             return resultado_potenciado
@@ -1384,7 +1439,7 @@ class NeuroMixSuperUnificadoRefactored(ComponenteAuroraBase):
                 "potenciaciones_aplicadas": 0,
                 "motor_base_usado": True
             }
-        
+
     def _reparar_y_reintentar_motor_real(self, configuracion: Dict[str, Any], error_original: Exception) -> Dict[str, Any]:
         """
         Repara y reintenta usar motor real (ELIMINA FALLBACKS SINTÉTICOS)

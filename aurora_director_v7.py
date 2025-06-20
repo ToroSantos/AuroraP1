@@ -1138,10 +1138,10 @@ class AuroraDirectorV7Refactored(DirectorAuroraInterface):
             self, 
             configuracion: ConfiguracionAuroraUnificada,
             progress_callback: Optional[Callable[[float, str], None]] = None
-        ) -> np.ndarray:  # ✅ CAMBIO CRÍTICO: Retorna numpy array directo
+        ) -> 'ResultadoAuroraIntegrado':  # ✅ RETORNA ResultadoAuroraIntegrado - Compatible con Bridge Y Auditor
             """
             Creación optimizada de experiencia neuroacústica
-            ✅ SOLUCIÓN REAL AL ERROR: Retorna numpy array directo para AuroraAudit
+            ✅ SOLUCIÓN REAL AL ERROR: Retorna ResultadoAuroraIntegrado compatible con AuroraAudit
             """
             inicio_tiempo = time.time()
             
@@ -1197,8 +1197,13 @@ class AuroraDirectorV7Refactored(DirectorAuroraInterface):
                 if len(audio_final) == 0:
                     raise ValueError("Audio final está vacío")
                 
-                # ✅ CÁLCULO CORRECTO DE DURACIÓN
-                duracion_real = audio_final.shape[1] / configuracion.sample_rate
+                # ✅ CÁLCULO CORRECTO DE DURACIÓN - Manejo de audio mono y estéreo
+                if len(audio_final.shape) == 1:
+                    # Audio mono: usar len directamente
+                    duracion_real = len(audio_final) / configuracion.sample_rate
+                else:
+                    # Audio estéreo: usar shape[1] para obtener samples
+                    duracion_real = audio_final.shape[1] / configuracion.sample_rate
                 
                 # ✅ ACTUALIZAR ESTADÍSTICAS INTERNAS
                 self._estadisticas['experiencias_generadas'] += 1
@@ -1210,8 +1215,31 @@ class AuroraDirectorV7Refactored(DirectorAuroraInterface):
                 # ✅ LOGGING CORRECTO
                 self.logger.info(f"✅ Experiencia generada exitosamente: {duracion_real:.1f}s de audio")
                 
-                # ✅ RETORNO DIRECTO - SOLUCIÓN REAL
-                return audio_final
+                # ✅ RETORNO COMPATIBLE CON AUDITOR - Crear objeto ResultadoAuroraIntegrado
+                tiempo_finalizacion = time.time()
+                resultado = ResultadoAuroraIntegrado(
+                    audio_data=audio_final,
+                    duracion_real=duracion_real,
+                    sample_rate=configuracion.sample_rate,
+                    metadatos={
+                        'objetivo': configuracion.objetivo,
+                        'duracion_solicitada': configuracion.duracion,
+                        'duracion_real': duracion_real,
+                        'intensidad': configuracion.intensidad,
+                        'estrategia_usada': estrategia.value,
+                        'calidad_generacion': 'neuroacustica_completa',
+                        'timestamp': tiempo_finalizacion,
+                        'tiempo_generacion': tiempo_finalizacion - inicio_tiempo,
+                        'estadisticas': {
+                            'canales': audio_final.shape[1] if len(audio_final.shape) > 1 else 1,
+                            'samples_totales': audio_final.shape[0] if len(audio_final.shape) == 1 else audio_final.shape[1],
+                            'rms_promedio': float(np.sqrt(np.mean(audio_final ** 2))),
+                            'amplitud_maxima': float(np.max(np.abs(audio_final)))
+                        }
+                    }
+                )
+                
+                return resultado
                 
             except Exception as e:
                 self.logger.error(f"❌ Error en creación de experiencia: {e}")
@@ -2690,7 +2718,8 @@ def test_aurora_director_refactorizado() -> bool:
         
         # ✅ TEST 5: Creación de experiencia
         resultado = director.crear_experiencia(config)
-        assert isinstance(resultado, np.ndarray), "Resultado no es del tipo correcto"
+        assert hasattr(resultado, 'audio_data'), "Resultado no tiene atributo audio_data"
+        assert isinstance(resultado.audio_data, np.ndarray), "Audio data no es numpy array"
         print("   ✅ Experiencia creada exitosamente")
         
         print("🎉 Todos los tests pasaron exitosamente!")
